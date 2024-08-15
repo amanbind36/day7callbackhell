@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #slideshow {
+            width: 600px;
+            height: 400px;
+            overflow: hidden;
+            position: relative;
+            margin: auto;
+        }
+        #slideshow img {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transition: opacity 1s ease-in-out;
+            opacity: 0;
+        }
+        #slideshow img.active {
+            opacity: 1;
+        }
+        .controls {
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="slideshow">
+        <img src="https://images.pexels.com/photos/5662857/pexels-photo-5662857.png?auto=compress&cs=tinysrgb&w=300" class="active">
+        
+    </div>
+    <div class="controls">
+        <button id="prev">Previous</button>
+        <button id="playPause">Pause</button>
+        <button id="next">Next</button>
+    </div>
+    <div class="controls">
+        <input type="text" id="imageUrl" placeholder="Image URL">
+        <input type="number" id="imageIndex" placeholder="Position">
+        <button id="addImage">Add Image</button>
+    </div>
+
+    
+</body>
+</html>
+<script>
+    let slideIndex = 0;
+let isPlaying = true;
+const intervalTime = 2000;
+let intervalId;
+
+const images = [
+    "https://images.pexels.com/photos/269140/pexels-photo-269140.jpeg?auto=compress&cs=tinysrgb&w=300",
+    "https://images.pexels.com/photos/1200450/pexels-photo-1200450.jpeg?auto=compress&cs=tinysrgb&w=300",
+    "https://media.istockphoto.com/id/1237804526/vector/movie-night-concept-with-popcorn-cinema-tickets-drink-tape-in-cartoon-style-movie-or-cinema.jpg?s=612x612&w=0&k=20&c=FWIp6SXBqUg-_PWtoTxOy00b2aeg5xNDiRcFr6IF4l4="
+];
+
+const slideshow = document.getElementById('slideshow');
+const prevButton = document.getElementById('prev');
+const playPauseButton = document.getElementById('playPause');
+const nextButton = document.getElementById('next');
+const addImageButton = document.getElementById('addImage');
+const imageUrlInput = document.getElementById('imageUrl');
+const imageIndexInput = document.getElementById('imageIndex');
+
+function initSlideshow() {
+    images.forEach((src, index) => {
+        const img = document.createElement('img');
+        img.src = src;
+        if (index === 0) img.classList.add('active');
+        slideshow.appendChild(img);
+    });
+
+    startSlideShow();
+}
+
+function startSlideShow() {
+    intervalId = setInterval(() => {
+        showSlide(slideIndex + 1);
+    }, intervalTime);
+}
+
+function showSlide(index) {
+    const slides = document.querySelectorAll('#slideshow img');
+    slides.forEach(slide => slide.classList.remove('active'));
+    slideIndex = (index + slides.length) % slides.length;
+    slides[slideIndex].classList.add('active');
+}
+
+function togglePlayPause() {
+    if (isPlaying) {
+        clearInterval(intervalId);
+        playPauseButton.textContent = 'Play';
+    } else {
+        startSlideShow();
+        playPauseButton.textContent = 'Pause';
+    }
+    isPlaying = !isPlaying;
+}
+
+function showNextSlide() {
+    showSlide(slideIndex + 1);
+}
+
+function showPrevSlide() {
+    showSlide(slideIndex - 1);
+}
+
+function addImage() {
+    const url = imageUrlInput.value;
+    const index = parseInt(imageIndexInput.value);
+
+    if (url && !isNaN(index)) {
+        const img = document.createElement('img');
+        img.src = url;
+
+        const slides = document.querySelectorAll('#slideshow img');
+        if (index < 0 || index > slides.length) {
+            alert('Position out of bounds');
+            return;
+        }
+
+        if (index === slides.length) {
+            slideshow.appendChild(img);
+        } else {
+            slideshow.insertBefore(img, slides[index]);
+        }
+
+        images.splice(index, 0, url);
+        showSlide(slideIndex);
+    }
+}
+
+prevButton.addEventListener('click', showPrevSlide);
+playPauseButton.addEventListener('click', togglePlayPause);
+nextButton.addEventListener('click', showNextSlide);
+addImageButton.addEventListener('click', addImage);
+
+initSlideshow();
+
+</script>
